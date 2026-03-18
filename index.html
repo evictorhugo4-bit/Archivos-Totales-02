@@ -6,7 +6,7 @@
 <title>ARCHIVOS — Gestor Documental</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a26;--border:#2a2a3e;--accent:#6c63ff;--accent2:#ff6b6b;--accent3:#43e97b;--text:#e8e8f0;--muted:#666680;}
+:root{--bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a26;--border:#2a2a3e;--accent:#6c63ff;--accent2:#ff6b6b;--accent3:#43e97b;--text:#e8e8f0;--muted:#666680;--gold:#f59e0b;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.5;}
@@ -22,6 +22,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.88);backdrop-
 .sb-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:all .15s;font-size:12px;font-weight:500;color:var(--muted);border:1px solid transparent;}
 .sb-item:hover{background:var(--surface2);color:var(--text);}
 .sb-item.active{background:rgba(108,99,255,.12);border-color:rgba(108,99,255,.3);color:var(--accent);}
+.sb-item.bm-active{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:var(--gold);}
 .sb-item .cnt{margin-left:auto;font-family:'JetBrains Mono';font-size:10px;background:var(--surface2);padding:1px 5px;border-radius:3px;}
 .sb-div{height:1px;background:var(--border);margin:6px 0;}
 .main{flex:1;overflow-y:auto;padding:20px 24px;}
@@ -44,20 +45,24 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.88);backdrop-
 .sval{font-family:'Bebas Neue';font-size:30px;letter-spacing:1px;}
 .sval.acc{color:var(--accent);}
 .files-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;}
-.fcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .2s;}
+.fcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .2s;position:relative;}
 .fcard:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 4px 24px rgba(108,99,255,.1);}
+.fcard.bookmarked{border-color:rgba(245,158,11,.4);}
 .fcard .thumb{height:130px;background:var(--surface2);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
 .fcard .thumb img{width:100%;height:100%;object-fit:cover;}
 .fcard .thumb .ficon{font-size:44px;}
 .tbadge{position:absolute;top:7px;right:7px;font-family:'JetBrains Mono';font-size:9px;font-weight:600;padding:2px 6px;border-radius:4px;text-transform:uppercase;}
 .bpdf{background:rgba(255,107,107,.2);color:#ff6b6b;border:1px solid rgba(255,107,107,.3);}
 .bimg{background:rgba(67,233,123,.15);color:#43e97b;border:1px solid rgba(67,233,123,.3);}
+.bm-star{position:absolute;top:7px;left:7px;font-size:14px;cursor:pointer;opacity:.5;transition:opacity .15s;z-index:2;background:none;border:none;padding:2px;}
+.bm-star:hover,.bm-star.on{opacity:1;}
 .fcard .finfo{padding:10px 12px;}
 .fname{font-size:11px;font-weight:600;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .fmeta{display:flex;flex-wrap:wrap;gap:3px;}
 .tag{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:500;background:rgba(108,99,255,.12);color:var(--accent);border:1px solid rgba(108,99,255,.2);}
 .tag.tcat{background:rgba(255,193,7,.1);color:#ffc107;border-color:rgba(255,193,7,.2);}
 .tag.ttipo{background:rgba(67,233,123,.1);color:#43e97b;border-color:rgba(67,233,123,.2);}
+.tag.tai{background:rgba(108,99,255,.18);color:#a78bfa;border-color:rgba(167,139,250,.3);}
 .fdate{font-size:10px;color:var(--muted);margin-top:5px;font-family:'JetBrains Mono';}
 .factions{display:flex;gap:5px;padding:0 12px 10px;}
 .abtn{flex:1;padding:5px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--muted);transition:all .15s;font-family:'DM Sans',sans-serif;}
@@ -66,6 +71,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.88);backdrop-
 .files-list{display:flex;flex-direction:column;gap:5px;}
 .frow{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s;}
 .frow:hover{border-color:var(--accent);}
+.frow.bookmarked{border-color:rgba(245,158,11,.35);}
 .frow .ricon{font-size:22px;flex-shrink:0;}
 .frow .rinfo{flex:1;min-width:0;}
 .frow .rname{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -111,6 +117,24 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.88);backdrop-
 .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
 .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:9px;padding:11px 20px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;width:100%;}
 .btn-secondary:hover{border-color:var(--accent);}
+/* IA Banner */
+.ai-banner{background:linear-gradient(135deg,rgba(108,99,255,.15),rgba(167,139,250,.1));border:1px solid rgba(108,99,255,.3);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;font-size:12px;}
+.ai-banner .ai-icon{font-size:20px;}
+.ai-banner strong{color:var(--accent);}
+.ai-result{background:var(--surface2);border:1px solid rgba(108,99,255,.25);border-radius:10px;padding:12px 14px;display:none;flex-direction:column;gap:8px;}
+.ai-result.show{display:flex;}
+.ai-result-title{font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;gap:6px;}
+.ai-chips{display:flex;flex-wrap:wrap;gap:5px;}
+.ai-chip{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid;transition:all .15s;}
+.ai-chip:hover{transform:translateY(-1px);}
+.ai-chip.cat{background:rgba(255,193,7,.12);color:#ffc107;border-color:rgba(255,193,7,.3);}
+.ai-chip.tag{background:rgba(108,99,255,.12);color:var(--accent);border-color:rgba(108,99,255,.25);}
+.ai-chip.pro{background:rgba(67,233,123,.1);color:#43e97b;border-color:rgba(67,233,123,.25);}
+.ai-chip.monto{background:rgba(251,146,60,.1);color:#fb923c;border-color:rgba(251,146,60,.25);}
+.ai-note{font-size:11px;color:var(--muted);line-height:1.5;font-style:italic;}
+.ai-apply-btn{background:rgba(108,99,255,.2);color:var(--accent);border:1px solid rgba(108,99,255,.35);border-radius:7px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;align-self:flex-start;}
+.ai-apply-btn:hover{background:rgba(108,99,255,.35);}
+/* Viewer */
 .viewer-modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;width:100%;max-width:780px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;animation:sup .22s ease;}
 .vhdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
 .vtitle{font-size:13px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -118,10 +142,12 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.88);backdrop-
 .vbody img{max-width:100%;border-radius:8px;}
 .vbody iframe{width:100%;height:58vh;border-radius:8px;border:none;}
 .vmeta{padding:14px 18px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:6px;}
+/* Config */
 .config-modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;width:100%;max-width:460px;box-shadow:0 24px 80px rgba(0,0,0,.6);animation:sup .22s ease;}
 .cnote{font-size:11px;color:var(--muted);line-height:1.6;margin-top:5px;}
 .cnote code{font-family:'JetBrains Mono';background:var(--surface2);padding:1px 4px;border-radius:3px;font-size:10px;}
 .cbox{background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:14px;}
+/* Toast */
 .toast-container{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:6px;}
 .toast{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:10px 14px;font-size:13px;min-width:220px;display:flex;align-items:center;gap:8px;animation:tin .18s ease;box-shadow:0 8px 24px rgba(0,0,0,.3);}
 .toast.success{border-color:rgba(67,233,123,.4);}
@@ -156,6 +182,11 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.88);backdrop-
     </div>
     <div class="sb-item" id="sb_img" onclick="setSbFilter('tipo','imagen','sb_img')">
       <span>🖼</span> Imágenes <span class="cnt" id="cntImg">0</span>
+    </div>
+    <div class="sb-div"></div>
+    <div class="sb-title">⭐ Guardados</div>
+    <div class="sb-item" id="sb_bm" onclick="setSbFilter('bookmark','si','sb_bm')">
+      <span>⭐</span> Favoritos <span class="cnt" id="cntBM">0</span>
     </div>
     <div class="sb-div"></div>
     <div class="sb-title">Categorías</div>
@@ -222,8 +253,18 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.88);backdrop-
           <span id="pvIcon">📄</span>
           <span class="pvname" id="pvName"></span>
           <span class="pvsize" id="pvSize"></span>
+          <button id="btnAnalizar" onclick="analizarConIA()" style="margin-left:auto;background:linear-gradient(135deg,#6c63ff,#a78bfa);color:white;border:none;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;">✨ Analizar con IA</button>
         </div>
       </div>
+
+      <!-- Resultado IA -->
+      <div class="ai-result" id="aiResult">
+        <div class="ai-result-title">✨ Sugerencias de la IA <span id="aiSpinner" style="display:none"><span class="spinner" style="border-top-color:var(--accent);"></span></span></div>
+        <div id="aiChips" class="ai-chips"></div>
+        <div id="aiNoteText" class="ai-note"></div>
+        <button class="ai-apply-btn" onclick="aplicarSugerenciasIA()">✅ Aplicar todo</button>
+      </div>
+
       <div class="field">
         <label>Nombre</label>
         <input type="text" id="fNombre" placeholder="Ej: Factura Enero 2026">
@@ -279,6 +320,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.88);backdrop-
     <div class="vhdr">
       <span id="vTypeIcon" style="font-size:18px"></span>
       <span class="vtitle" id="vTitle"></span>
+      <button id="vBmBtn" onclick="toggleBookmarkViewer()" style="background:none;border:none;font-size:18px;cursor:pointer;padding:4px 8px;">⭐</button>
       <a id="vLink" href="#" target="_blank" class="config-btn" style="text-decoration:none">↗ Abrir</a>
       <button class="mclose" onclick="closeModal('viewerModal')">✕</button>
     </div>
@@ -298,20 +340,21 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.88);backdrop-
       <div class="field">
         <label>URL del Google Apps Script</label>
         <input type="text" id="cfgUrl" placeholder="https://script.google.com/macros/s/.../exec">
-        <div class="cnote">El script debe implementar <code>doGet()</code> (devuelve archivos) y <code>doPost()</code> (guarda en Drive + Sheet).</div>
+        <div class="cnote">El script debe implementar <code>doGet()</code> y <code>doPost()</code>.</div>
       </div>
       <div class="field">
         <label>ID de carpeta Google Drive</label>
         <input type="text" id="cfgFolder" placeholder="1a2b3c4d5e6f...">
         <div class="cnote">Copiá el ID de la URL de tu carpeta Drive.</div>
       </div>
+      <div class="field">
+        <label>API Key de Anthropic (para IA)</label>
+        <input type="password" id="cfgApiKey" placeholder="sk-ant-...">
+        <div class="cnote">Tu clave de Anthropic para clasificación automática con IA. Se guarda solo en tu navegador.</div>
+      </div>
       <div class="cbox">
-        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:8px;">📋 Estructura del Apps Script</div>
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:8px;">📋 Columnas de la Sheet</div>
         <div class="cnote">
-          <code>doGet()</code> → devuelve <code>{"ok":true,"archivos":[...]}</code><br><br>
-          <code>doPost()</code> tipo <code>"subir"</code> → recibe base64, guarda en Drive, escribe en Sheet. Devuelve <code>{"ok":true,"driveUrl":"...","driveId":"..."}</code><br><br>
-          <code>doPost()</code> tipo <code>"eliminar"</code> → marca como eliminado en Sheet<br><br>
-          Columnas de la Sheet:<br>
           <code>ID | NOMBRE | TIPO | CATEGORIA | ESTADO | PROVEEDOR | MONTO | ETIQUETAS | NOTAS | FECHA | DRIVE_URL | DRIVE_ID</code>
         </div>
       </div>
@@ -327,14 +370,19 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.88);backdrop-
 // ═══════════════════════════════════════
 //  ESTADO
 // ═══════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxtWOWU4FYfP-yTxag6bloUCKnpdov7zqdrPi4oSmVqf3zSgub1hU06lrADg3VTCzEY/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyHoR8oun7D9XqE7hkMDzJj8DEM6OsL1BQMVcwjeJ20WkEknlaxIQGySTiH-UMpXd9anA/exec';
 let CFG = JSON.parse(localStorage.getItem('arch_cfg') || '{}');
 if (!CFG.scriptUrl) { CFG.scriptUrl = SCRIPT_URL; localStorage.setItem('arch_cfg', JSON.stringify(CFG)); }
 let archivos = JSON.parse(localStorage.getItem('arch_data') || '[]');
+let bookmarks = JSON.parse(localStorage.getItem('arch_bm') || '[]'); // array de IDs
 let tags = [];
 let curFile = null;
+let curBase64 = null;
 let viewMode = 'grid';
-let sbFilters = { tipo: 'todos', estado: 'todos' };
+let sbFilters = { tipo: 'todos', estado: 'todos', bookmark: 'todos' };
+let aiSugerencias = null;
+let viewerCurrentId = null;
+
 const CAT_COLORS = {
   Facturas:'#ffc107',Contratos:'#6c63ff',Recibos:'#43e97b',
   Informes:'#4ecdc4',Fotos:'#ff6b6b',Legales:'#a78bfa',
@@ -349,7 +397,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (CFG.scriptUrl) cargarSheet();
   else renderFiles();
 
-  // Drag & drop
   const dz = document.getElementById('dropzone');
   ['dragover','dragenter'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('dg'); }));
   ['dragleave','dragend'].forEach(ev => dz.addEventListener(ev, () => dz.classList.remove('dg')));
@@ -366,11 +413,13 @@ document.addEventListener('DOMContentLoaded', () => {
 function openConfig() {
   document.getElementById('cfgUrl').value = CFG.scriptUrl || '';
   document.getElementById('cfgFolder').value = CFG.folderId || '';
+  document.getElementById('cfgApiKey').value = CFG.apiKey || '';
   document.getElementById('configModal').classList.add('open');
 }
 function saveConfig() {
   CFG.scriptUrl = document.getElementById('cfgUrl').value.trim();
   CFG.folderId  = document.getElementById('cfgFolder').value.trim();
+  CFG.apiKey    = document.getElementById('cfgApiKey').value.trim();
   localStorage.setItem('arch_cfg', JSON.stringify(CFG));
   updateDot();
   closeModal('configModal');
@@ -390,19 +439,191 @@ async function cargarSheet() {
   if (!CFG.scriptUrl) return;
   toast('↺ Cargando desde Sheet...', 'info');
   try {
-    const res = await fetch(CFG.scriptUrl);
-    const data = await res.json();
+    const url = CFG.scriptUrl + (CFG.scriptUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
+    const res = await fetch(url, { redirect: 'follow' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); } catch(pe) { throw new Error('Respuesta no es JSON. ¿El script está bien desplegado?'); }
     if (data.ok && Array.isArray(data.archivos)) {
       archivos = data.archivos;
       localStorage.setItem('arch_data', JSON.stringify(archivos));
       renderFiles();
       toast(`✅ ${archivos.length} archivos cargados`, 'success');
     } else {
-      toast('❌ Respuesta inesperada del script', 'error');
+      toast('❌ Script error: ' + (data.error || 'respuesta inesperada'), 'error');
     }
   } catch(e) {
-    toast('❌ Error al conectar: ' + e.message, 'error');
+    toast('❌ ' + e.message, 'error');
+    console.error('cargarSheet error:', e);
   }
+}
+
+// ═══════════════════════════════════════
+//  IA — CLASIFICACIÓN AUTOMÁTICA
+// ═══════════════════════════════════════
+async function analizarConIA() {
+  if (!curFile || !curBase64) { toast('Primero seleccioná un archivo', 'error'); return; }
+
+  const apiKey = CFG.apiKey;
+  if (!apiKey) {
+    toast('⚙ Configurá tu API Key de Anthropic primero', 'error');
+    openConfig();
+    return;
+  }
+
+  const btn = document.getElementById('btnAnalizar');
+  btn.disabled = true;
+  btn.textContent = '⏳ Analizando...';
+  document.getElementById('aiSpinner').style.display = '';
+  document.getElementById('aiResult').classList.add('show');
+  document.getElementById('aiChips').innerHTML = '<span style="color:var(--muted);font-size:11px;">Analizando el archivo...</span>';
+  document.getElementById('aiNoteText').textContent = '';
+
+  try {
+    const isPdf = curFile.type === 'application/pdf';
+    const b64data = curBase64.split(',')[1];
+
+    const messages = [
+      {
+        role: 'user',
+        content: [
+          {
+            type: isPdf ? 'document' : 'image',
+            source: {
+              type: 'base64',
+              media_type: curFile.type,
+              data: b64data
+            }
+          },
+          {
+            type: 'text',
+            text: `Analizá este archivo y respondé ÚNICAMENTE con un JSON válido, sin texto extra, sin markdown, sin backticks. El JSON debe tener exactamente estas claves:
+{
+  "categoria": "una de: Facturas, Contratos, Recibos, Informes, Fotos, Legales, Comprobantes, Tickets, Otro",
+  "etiquetas": ["máximo 4 etiquetas cortas y relevantes"],
+  "proveedor": "nombre del emisor/empresa/proveedor si se detecta, sino cadena vacía",
+  "monto": número o 0 si no hay monto,
+  "resumen": "una sola oración describiendo el documento (máximo 15 palabras)"
+}`
+          }
+        ]
+      }
+    ];
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 400,
+        messages
+      })
+    });
+
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message || 'Error de API');
+
+    const raw = data.content?.[0]?.text || '';
+    let result;
+    try {
+      const clean = raw.replace(/```json|```/g, '').trim();
+      result = JSON.parse(clean);
+    } catch {
+      throw new Error('La IA no devolvió JSON válido');
+    }
+
+    aiSugerencias = result;
+    renderAIResult(result);
+    toast('✨ IA clasificó el archivo', 'success');
+
+  } catch(e) {
+    toast('❌ IA: ' + e.message, 'error');
+    document.getElementById('aiResult').classList.remove('show');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✨ Analizar con IA';
+    document.getElementById('aiSpinner').style.display = 'none';
+  }
+}
+
+function renderAIResult(r) {
+  const chips = document.getElementById('aiChips');
+  let html = '';
+  if (r.categoria) html += `<span class="ai-chip cat" onclick="aplicarCampo('categoria','${esc(r.categoria)}')" title="Click para aplicar">🗂 ${esc(r.categoria)}</span>`;
+  if (r.proveedor) html += `<span class="ai-chip pro" onclick="aplicarCampo('proveedor','${esc(r.proveedor)}')" title="Click para aplicar">🏢 ${esc(r.proveedor)}</span>`;
+  if (r.monto)     html += `<span class="ai-chip monto" onclick="aplicarCampo('monto','${r.monto}')" title="Click para aplicar">💰 $${fmtN(r.monto)}</span>`;
+  (r.etiquetas||[]).forEach(t => {
+    html += `<span class="ai-chip tag" onclick="aplicarTag('${esc(t)}')" title="Click para agregar"># ${esc(t)}</span>`;
+  });
+  chips.innerHTML = html || '<span style="color:var(--muted);font-size:11px;">Sin sugerencias</span>';
+  document.getElementById('aiNoteText').textContent = r.resumen || '';
+}
+
+function aplicarCampo(campo, valor) {
+  if (campo === 'categoria') {
+    const sel = document.getElementById('fCategoria');
+    // Agregar opción si no existe
+    let found = false;
+    for (let o of sel.options) { if (o.value === valor) { found = true; break; } }
+    if (!found) { const op = new Option(valor, valor); sel.add(op); }
+    sel.value = valor;
+    toast(`✅ Categoría: ${valor}`, 'success');
+  } else if (campo === 'proveedor') {
+    document.getElementById('fProveedor').value = valor;
+    toast(`✅ Proveedor: ${valor}`, 'success');
+  } else if (campo === 'monto') {
+    document.getElementById('fMonto').value = valor;
+    toast(`✅ Monto: $${valor}`, 'success');
+  }
+}
+
+function aplicarTag(t) {
+  if (!tags.includes(t)) { tags.push(t); renderTagsUI(); toast(`✅ Etiqueta: ${t}`, 'success'); }
+}
+
+function aplicarSugerenciasIA() {
+  if (!aiSugerencias) return;
+  const r = aiSugerencias;
+  if (r.categoria) aplicarCampo('categoria', r.categoria);
+  if (r.proveedor) aplicarCampo('proveedor', r.proveedor);
+  if (r.monto)     aplicarCampo('monto', String(r.monto));
+  (r.etiquetas||[]).forEach(t => aplicarTag(t));
+  if (r.resumen && !document.getElementById('fNotas').value)
+    document.getElementById('fNotas').value = r.resumen;
+  toast('✨ Sugerencias aplicadas', 'success');
+}
+
+// ═══════════════════════════════════════
+//  BOOKMARKS
+// ═══════════════════════════════════════
+function toggleBookmark(id, e) {
+  if (e) e.stopPropagation();
+  if (bookmarks.includes(id)) {
+    bookmarks = bookmarks.filter(x => x !== id);
+    toast('⭐ Quitado de favoritos', 'info');
+  } else {
+    bookmarks.push(id);
+    toast('⭐ Guardado en favoritos', 'success');
+  }
+  localStorage.setItem('arch_bm', JSON.stringify(bookmarks));
+  renderFiles();
+  if (viewerCurrentId === id) updateViewerBmBtn(id);
+}
+
+function toggleBookmarkViewer() {
+  if (viewerCurrentId) toggleBookmark(viewerCurrentId, null);
+}
+
+function updateViewerBmBtn(id) {
+  const btn = document.getElementById('vBmBtn');
+  btn.textContent = bookmarks.includes(id) ? '⭐' : '☆';
+  btn.style.opacity = bookmarks.includes(id) ? '1' : '0.5';
 }
 
 // ═══════════════════════════════════════
@@ -418,6 +639,11 @@ function handleFile(file) {
   document.getElementById('dzPreview').classList.add('show');
   if (!document.getElementById('fNombre').value)
     document.getElementById('fNombre').value = file.name.replace(/\.[^.]+$/, '');
+  // Pre-cargar base64 para IA
+  toB64(file).then(b64 => { curBase64 = b64; });
+  // Ocultar resultado IA anterior
+  document.getElementById('aiResult').classList.remove('show');
+  aiSugerencias = null;
 }
 
 function fmtBytes(b) {
@@ -443,7 +669,7 @@ async function subirArchivo() {
   txt.innerHTML = '<span class="spinner"></span> Subiendo...';
 
   try {
-    const base64 = await toB64(curFile);
+    const base64 = curBase64 || await toB64(curFile);
     const id = Date.now().toString();
     const fecha = new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'})
       + ' ' + new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
@@ -459,7 +685,7 @@ async function subirArchivo() {
         mimeType: curFile.type,
         base64Data: base64.split(',')[1]
       };
-      const res = await fetch(CFG.scriptUrl, { method:'POST', body: JSON.stringify(payload) });
+      const res = await fetch(CFG.scriptUrl, { method:'POST', redirect:'follow', body: JSON.stringify(payload) });
       const data = await res.json();
       if (data.ok) { driveUrl = data.driveUrl || ''; driveId = data.driveId || ''; }
       else toast('⚠ Script respondió error: ' + (data.error||''), 'error');
@@ -469,7 +695,7 @@ async function subirArchivo() {
       id, nombre, tipo, categoria, estado, proveedor,
       monto: parseFloat(monto)||0, etiquetas, notas, fecha,
       driveUrl, driveId,
-      localData: base64  // siempre guardar local para previsualización
+      localData: base64
     };
     archivos.unshift(archivo);
     localStorage.setItem('arch_data', JSON.stringify(archivos));
@@ -523,12 +749,25 @@ function renderTagsUI() {
 //  FILTROS
 // ═══════════════════════════════════════
 function setSbFilter(key, val, id) {
-  sbFilters[key] = val;
-  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
-  const el = document.getElementById(id);
-  if (el) el.classList.add('active');
+  // Resetear otros filtros del mismo grupo si se cambia
+  if (key === 'bookmark') {
+    sbFilters = { tipo: 'todos', estado: 'todos', bookmark: val };
+  } else if (key === 'tipo') {
+    sbFilters = { tipo: val, estado: 'todos', bookmark: 'todos' };
+  } else if (key === 'estado') {
+    sbFilters = { tipo: 'todos', estado: val, bookmark: 'todos' };
+  } else if (key === 'cat') {
+    document.getElementById('filterCat').value = val;
+    sbFilters = { tipo: 'todos', estado: 'todos', bookmark: 'todos' };
+  }
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active','bm-active'));
+  if (id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.add(key === 'bookmark' ? 'bm-active' : 'active');
+  }
   renderFiles();
 }
+
 function setView(v) {
   viewMode = v;
   document.getElementById('vgrid').classList.toggle('active', v==='grid');
@@ -541,8 +780,10 @@ function getFiltered() {
   const cat = document.getElementById('filterCat').value;
   const yr  = document.getElementById('filterYear').value;
   return archivos.filter(a => {
+    if (a.estado === 'eliminado') return false;
     if (sbFilters.tipo !== 'todos' && a.tipo !== sbFilters.tipo) return false;
     if (sbFilters.estado !== 'todos' && a.estado !== sbFilters.estado) return false;
+    if (sbFilters.bookmark === 'si' && !bookmarks.includes(a.id)) return false;
     if (cat && a.categoria !== cat) return false;
     if (yr && !(a.fecha||'').includes(yr)) return false;
     if (q) {
@@ -561,6 +802,7 @@ function renderFiles() {
   const cont  = document.getElementById('filesContainer');
   const act   = archivos.filter(a => a.estado !== 'eliminado');
   const cats  = [...new Set(act.map(a=>a.categoria).filter(Boolean))];
+  const bmCount = act.filter(a => bookmarks.includes(a.id)).length;
 
   // Stats
   document.getElementById('stTotal').textContent = act.length;
@@ -570,6 +812,7 @@ function renderFiles() {
   document.getElementById('cntTodos').textContent = act.length;
   document.getElementById('cntPDF').textContent   = act.filter(a=>a.tipo==='pdf').length;
   document.getElementById('cntImg').textContent   = act.filter(a=>a.tipo==='imagen').length;
+  document.getElementById('cntBM').textContent    = bmCount;
 
   // Sidebar cats
   document.getElementById('sbCats').innerHTML = cats.map(c => {
@@ -591,7 +834,8 @@ function renderFiles() {
   fy.innerHTML = '<option value="">Todos los años</option>' + years.map(y=>`<option value="${y}" ${y===py?'selected':''}>${y}</option>`).join('');
 
   if (!lista.length) {
-    cont.innerHTML = `<div class="empty"><div class="eicon">🗂</div><div class="etitle">Sin archivos</div><div class="esub">Subí un archivo con <strong>+ Subir</strong> o ajustá los filtros</div></div>`;
+    const esBM = sbFilters.bookmark === 'si';
+    cont.innerHTML = `<div class="empty"><div class="eicon">${esBM?'⭐':'🗂'}</div><div class="etitle">${esBM?'Sin favoritos':'Sin archivos'}</div><div class="esub">${esBM?'Marcá archivos con ⭐ para guardarlos aquí':'Subí un archivo con <strong>+ Subir</strong> o ajustá los filtros'}</div></div>`;
     return;
   }
   cont.innerHTML = viewMode === 'grid'
@@ -603,11 +847,16 @@ function cardHTML(a) {
   const col = CAT_COLORS[a.categoria]||'#6c63ff';
   const isImg = a.tipo === 'imagen';
   const src = a.localData || a.driveUrl || '';
+  const isBM = bookmarks.includes(a.id);
   const thumb = (isImg && src)
     ? `<img src="${src}" loading="lazy">`
     : `<span class="ficon">${a.tipo==='pdf'?'📄':'🖼'}</span>`;
-  return `<div class="fcard" onclick="verArchivo('${a.id}')">
-    <div class="thumb">${thumb}<span class="tbadge ${a.tipo==='pdf'?'bpdf':'bimg'}">${a.tipo}</span></div>
+  return `<div class="fcard${isBM?' bookmarked':''}" onclick="verArchivo('${a.id}')">
+    <div class="thumb">
+      ${thumb}
+      <span class="tbadge ${a.tipo==='pdf'?'bpdf':'bimg'}">${a.tipo}</span>
+      <button class="bm-star${isBM?' on':''}" onclick="toggleBookmark('${a.id}',event)" title="${isBM?'Quitar de favoritos':'Guardar en favoritos'}">${isBM?'⭐':'☆'}</button>
+    </div>
     <div class="finfo">
       <div class="fname">${esc(a.nombre)}</div>
       <div class="fmeta">
@@ -626,7 +875,8 @@ function cardHTML(a) {
 
 function rowHTML(a) {
   const col = CAT_COLORS[a.categoria]||'#6c63ff';
-  return `<div class="frow" onclick="verArchivo('${a.id}')">
+  const isBM = bookmarks.includes(a.id);
+  return `<div class="frow${isBM?' bookmarked':''}" onclick="verArchivo('${a.id}')">
     <span class="ricon">${a.tipo==='pdf'?'📄':'🖼'}</span>
     <div class="rinfo">
       <div class="rname">${esc(a.nombre)}</div>
@@ -639,6 +889,7 @@ function rowHTML(a) {
     </div>
     <div class="rdate">${a.fecha||''}</div>
     <div class="ract">
+      <button class="abtn" onclick="event.stopPropagation();toggleBookmark('${a.id}',event)">${isBM?'⭐':'☆'}</button>
       <button class="abtn" onclick="event.stopPropagation();verArchivo('${a.id}')">👁 Ver</button>
       <button class="abtn danger" onclick="event.stopPropagation();eliminar('${a.id}')">🗑</button>
     </div>
@@ -650,12 +901,14 @@ function rowHTML(a) {
 // ═══════════════════════════════════════
 function verArchivo(id) {
   const a = archivos.find(x=>x.id===id); if (!a) return;
+  viewerCurrentId = id;
   document.getElementById('vTypeIcon').textContent = a.tipo==='pdf'?'📄':'🖼';
   document.getElementById('vTitle').textContent = a.nombre;
   const src = a.localData || a.driveUrl || '';
   const lnk = document.getElementById('vLink');
   lnk.href = a.driveUrl || src || '#';
   lnk.style.display = (a.driveUrl || src) ? '' : 'none';
+  updateViewerBmBtn(id);
   const body = document.getElementById('vBody');
   if (a.tipo === 'imagen' && src)
     body.innerHTML = `<img src="${src}" alt="${esc(a.nombre)}">`;
@@ -683,8 +936,10 @@ async function eliminar(id) {
   if (!confirm('¿Eliminar este archivo?')) return;
   const a = archivos.find(x=>x.id===id); if (!a) return;
   a.estado = 'eliminado';
+  bookmarks = bookmarks.filter(x => x !== id);
+  localStorage.setItem('arch_bm', JSON.stringify(bookmarks));
   if (CFG.scriptUrl) {
-    try { await fetch(CFG.scriptUrl, { method:'POST', body: JSON.stringify({ tipo:'eliminar', id, driveId: a.driveId||'' }) }); }
+    try { await fetch(CFG.scriptUrl, { method:'POST', redirect:'follow', body: JSON.stringify({ tipo:'eliminar', id, driveId: a.driveId||'' }) }); }
     catch(e) {}
   }
   localStorage.setItem('arch_data', JSON.stringify(archivos));
@@ -700,12 +955,13 @@ function fmtN(n) { return Number(n).toLocaleString('es-AR'); }
 function openUpload() { document.getElementById('uploadModal').classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function resetForm() {
-  curFile = null; tags = [];
+  curFile = null; curBase64 = null; tags = []; aiSugerencias = null;
   ['fNombre','fProveedor','fMonto','fNotas'].forEach(i => document.getElementById(i).value = '');
   document.getElementById('fCategoria').value = '';
   document.getElementById('fEstado').value = 'activo';
   document.getElementById('dzPreview').classList.remove('show');
   document.getElementById('fileInput').value = '';
+  document.getElementById('aiResult').classList.remove('show');
   renderTagsUI();
 }
 document.querySelectorAll('.modal-overlay').forEach(m => {
