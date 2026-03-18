@@ -370,7 +370,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.88);backdrop-
 // ═══════════════════════════════════════
 //  ESTADO
 // ═══════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyHoR8oun7D9XqE7hkMDzJj8DEM6OsL1BQMVcwjeJ20WkEknlaxIQGySTiH-UMpXd9anA/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxmIB0FeYW73eaKWoGkLXIgBeO2XeOUJl5Q9K_vXdx_nJPRRP6DF9HFxLoxtHpw4xEZ/exec';
 let CFG = JSON.parse(localStorage.getItem('arch_cfg') || '{}');
 if (!CFG.scriptUrl) { CFG.scriptUrl = SCRIPT_URL; localStorage.setItem('arch_cfg', JSON.stringify(CFG)); }
 let archivos = JSON.parse(localStorage.getItem('arch_data') || '[]');
@@ -435,16 +435,19 @@ function updateDot() {
 // ═══════════════════════════════════════
 //  SHEET
 // ═══════════════════════════════════════
+async function gasGet(params) {
+  const url = CFG.scriptUrl + '?' + new URLSearchParams(params).toString() + '&t=' + Date.now();
+  const res = await fetch(url, { redirect: 'follow' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const text = await res.text();
+  try { return JSON.parse(text); } catch { throw new Error('Respuesta no es JSON. Verificá el despliegue del script.'); }
+}
+
 async function cargarSheet() {
   if (!CFG.scriptUrl) return;
   toast('↺ Cargando desde Sheet...', 'info');
   try {
-    const url = CFG.scriptUrl + (CFG.scriptUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
-    const res = await fetch(url, { redirect: 'follow' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const text = await res.text();
-    let data;
-    try { data = JSON.parse(text); } catch(pe) { throw new Error('Respuesta no es JSON. ¿El script está bien desplegado?'); }
+    const data = await gasGet({ accion: 'listar' });
     if (data.ok && Array.isArray(data.archivos)) {
       archivos = data.archivos;
       localStorage.setItem('arch_data', JSON.stringify(archivos));
@@ -678,17 +681,20 @@ async function subirArchivo() {
 
     if (CFG.scriptUrl) {
       const payload = {
-        tipo: 'subir', id, nombre, tipo, categoria, estado,
+        id, nombre, tipo, categoria, estado,
         proveedor, monto: monto||0, etiquetas, notas, fecha,
         folderId: CFG.folderId || '',
         fileName: curFile.name,
         mimeType: curFile.type,
         base64Data: base64.split(',')[1]
       };
-      const res = await fetch(CFG.scriptUrl, { method:'POST', redirect:'follow', body: JSON.stringify(payload) });
-      const data = await res.json();
-      if (data.ok) { driveUrl = data.driveUrl || ''; driveId = data.driveId || ''; }
-      else toast('⚠ Script respondió error: ' + (data.error||''), 'error');
+      try {
+        const data = await gasGet({ accion: 'subir', payload: JSON.stringify(payload) });
+        if (data.ok) { driveUrl = data.driveUrl || ''; driveId = data.driveId || ''; }
+        else toast('⚠ Script error: ' + (data.error||''), 'error');
+      } catch(fetchErr) {
+        toast('⚠ No se pudo guardar en Drive: ' + fetchErr.message, 'error');
+      }
     }
 
     const archivo = {
@@ -939,7 +945,7 @@ async function eliminar(id) {
   bookmarks = bookmarks.filter(x => x !== id);
   localStorage.setItem('arch_bm', JSON.stringify(bookmarks));
   if (CFG.scriptUrl) {
-    try { await fetch(CFG.scriptUrl, { method:'POST', redirect:'follow', body: JSON.stringify({ tipo:'eliminar', id, driveId: a.driveId||'' }) }); }
+    try { await gasGet({ accion: 'eliminar', id, driveId: a.driveId||'' }); }
     catch(e) {}
   }
   localStorage.setItem('arch_data', JSON.stringify(archivos));
