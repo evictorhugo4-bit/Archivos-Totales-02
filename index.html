@@ -370,7 +370,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.88);backdrop-
 // ═══════════════════════════════════════
 //  ESTADO
 // ═══════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxB-TnIHTISPJ4NK-lbXgH5LejacXlK0yFFA0XGnkdDrFxA3AufYyOrJwjBXiexyGro/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzx-4GAKozoR2ZtpcbqjHGoUoY21Mf3fOZx5HlmRaOXjrTKm2PgzlGSVXnYN6yBUZG4/exec';
 let CFG = JSON.parse(localStorage.getItem('arch_cfg') || '{}');
 if (!CFG.scriptUrl) { CFG.scriptUrl = SCRIPT_URL; localStorage.setItem('arch_cfg', JSON.stringify(CFG)); }
 let archivos = JSON.parse(localStorage.getItem('arch_data') || '[]');
@@ -456,6 +456,19 @@ function gasGet(params) {
     script.src = url;
     document.head.appendChild(script);
   });
+}
+
+// POST sin Content-Type para evitar preflight CORS (Apps Script acepta text/plain)
+async function gasPost(payload) {
+  const url = CFG.scriptUrl + '?t=' + Date.now();
+  const res = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+    // SIN Content-Type header → browser envía text/plain → sin preflight CORS
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const text = await res.text();
+  try { return JSON.parse(text); } catch { throw new Error('Respuesta no es JSON'); }
 }
 
 async function cargarSheet() {
@@ -696,6 +709,7 @@ async function subirArchivo() {
 
     if (CFG.scriptUrl) {
       const payload = {
+        accion: 'subir',
         id, nombre, tipo, categoria, estado,
         proveedor, monto: monto||0, etiquetas, notas, fecha,
         folderId: CFG.folderId || '',
@@ -704,7 +718,7 @@ async function subirArchivo() {
         base64Data: base64.split(',')[1]
       };
       try {
-        const data = await gasGet({ accion: 'subir', payload: JSON.stringify(payload) });
+        const data = await gasPost(payload);
         if (data.ok) { driveUrl = data.driveUrl || ''; driveId = data.driveId || ''; }
         else toast('⚠ Script error: ' + (data.error||''), 'error');
       } catch(fetchErr) {
