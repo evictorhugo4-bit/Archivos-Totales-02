@@ -370,7 +370,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.88);backdrop-
 // ═══════════════════════════════════════
 //  ESTADO
 // ═══════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxmIB0FeYW73eaKWoGkLXIgBeO2XeOUJl5Q9K_vXdx_nJPRRP6DF9HFxLoxtHpw4xEZ/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxB-TnIHTISPJ4NK-lbXgH5LejacXlK0yFFA0XGnkdDrFxA3AufYyOrJwjBXiexyGro/exec';
 let CFG = JSON.parse(localStorage.getItem('arch_cfg') || '{}');
 if (!CFG.scriptUrl) { CFG.scriptUrl = SCRIPT_URL; localStorage.setItem('arch_cfg', JSON.stringify(CFG)); }
 let archivos = JSON.parse(localStorage.getItem('arch_data') || '[]');
@@ -435,12 +435,27 @@ function updateDot() {
 // ═══════════════════════════════════════
 //  SHEET
 // ═══════════════════════════════════════
-async function gasGet(params) {
-  const url = CFG.scriptUrl + '?' + new URLSearchParams(params).toString() + '&t=' + Date.now();
-  const res = await fetch(url, { redirect: 'follow' });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  const text = await res.text();
-  try { return JSON.parse(text); } catch { throw new Error('Respuesta no es JSON. Verificá el despliegue del script.'); }
+function gasGet(params) {
+  return new Promise((resolve, reject) => {
+    const cbName = '_gas_cb_' + Date.now();
+    params.callback = cbName;
+    params.t = Date.now();
+    const url = CFG.scriptUrl + '?' + new URLSearchParams(params).toString();
+    const script = document.createElement('script');
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error('Timeout — verificá el despliegue del script'));
+    }, 15000);
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+    window[cbName] = function(data) { cleanup(); resolve(data); };
+    script.onerror = () => { cleanup(); reject(new Error('Error al cargar script — verificá la URL')); };
+    script.src = url;
+    document.head.appendChild(script);
+  });
 }
 
 async function cargarSheet() {
